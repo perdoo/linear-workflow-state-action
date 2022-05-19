@@ -1,5 +1,5 @@
-const core = require("@actions/core");
-import { each } from "lodash";
+import * as core from "@actions/core";
+import { each } from "lodash-es";
 import { LinearClient } from "@linear/sdk";
 
 async function run() {
