@@ -19,7 +19,7 @@ _Required._ Move to state id.
 ## Example usage
 
 ```yaml
-uses: perdoo/linear-workflow-state-action@v2.1.0
+uses: perdoo/linear-workflow-state-action@v0.1
 with:
   linearApiKey: ${{ secrets.LINEAR_API_KEY }}
   fromStateId: 12345
