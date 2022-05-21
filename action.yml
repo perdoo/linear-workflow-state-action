@@ -16,7 +16,7 @@ inputs:
   completedAfter:
     description: Datetime when the issues were moved to the completed state
     required: false
-  labelName:
+  label:
     description: The name of the label to add to the issues
     required: false
 outputs:

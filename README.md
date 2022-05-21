@@ -20,7 +20,7 @@ _Required._ Move to state id.
 
 _Optional._ Only picks issues completed after this Datetime
 
-### `labelName`
+### `label`
 
 _Optional._ The name of the label to add to the issues
 
