@@ -97,7 +97,7 @@ const formatIssues = (issues) =>
     .join("\n") || "_No tickets_";
 
 const formatIssuesForSlack = async (labelId) => {
-  const label = linearClient.issueLabel(labelId);
+  const label = await linearClient.issueLabel(labelId);
   const bugs = await label.issues({
     filter: { labels: { name: { eq: "Bug" } } },
   });
