@@ -16,6 +16,24 @@ _Required._ Move from state id.
 
 _Required._ Move to state id.
 
+### `completedAfter`
+
+_Optional._ Only picks issues completed after this Datetime
+
+### `labelName`
+
+_Optional._ The name of the label to add to the issues
+
+## Outputs
+
+### `label-created`
+
+Was the label created.
+
+### `url`
+
+Label URL.
+
 ## Example usage
 
 ```yaml
