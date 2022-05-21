@@ -80,7 +80,8 @@ async function run() {
       );
 
       if (newLabelId) {
-        core.setOutput("story-list", formatIssuesForSlack(newLabelId));
+        const storyList = await formatIssuesForSlack(newLabelId);
+        core.setOutput("story-list", storyList);
       }
     });
   } catch (error) {
