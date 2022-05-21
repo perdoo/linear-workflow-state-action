@@ -110,14 +110,11 @@ const formatIssuesForSlack = async (labelId) => {
   });
 
   return `
-  *Features*
-  ${formatIssues(features.nodes)}
+  *Features*\n${formatIssues(features.nodes)}
 
-  *Bugfixes*
-  ${formatIssues(bugs.nodes)}
+  *Bugfixes*\n${formatIssues(bugs.nodes)}
 
-  *Chores*
-  ${formatIssues(chores.nodes)}
+  *Chores*\n${formatIssues(chores.nodes)}
   `;
 };
 
