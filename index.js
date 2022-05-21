@@ -12,10 +12,11 @@ const ESCAPE = {
 };
 const ESPACE_REGEX = new RegExp(Object.keys(ESCAPE).join("|"), "gi");
 
+const apiKey = core.getInput("linearApiKey");
+const linearClient = new LinearClient({ apiKey });
+
 async function run() {
   try {
-    const apiKey = core.getInput("linearApiKey");
-    const linearClient = new LinearClient({ apiKey });
     const fromStateId = core.getInput("fromStateId");
     const toStateId = core.getInput("toStateId");
     const completedAfter = Date.parse(core.getInput("completedAfter"));
