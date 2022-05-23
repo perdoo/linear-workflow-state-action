@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import { each, remove } from "lodash-es";
+import { each } from "lodash-es";
 import { LinearClient } from "@linear/sdk";
 
 const ESCAPE = {
@@ -14,79 +14,84 @@ const ESPACE_REGEX = new RegExp(Object.keys(ESCAPE).join("|"), "gi");
 
 const apiKey = core.getInput("linearApiKey");
 const linearClient = new LinearClient({ apiKey });
+const fromStateId = core.getInput("fromStateId");
+const toStateId = core.getInput("toStateId");
+const labelName = core.getInput("label");
+
+core.setSecret("linearApiKey");
 
 async function run() {
   try {
-    const fromStateId = core.getInput("fromStateId");
-    const toStateId = core.getInput("toStateId");
-    const completedAfter = Date.parse(core.getInput("completedAfter"));
-    const labelName = core.getInput("label");
-
-    core.setSecret("linearApiKey");
-
-    // Fetch issues
-    // TODO: Recursively fetch all pages here. Default page length is 50 which should be enough for most use cases
-    const issues = await linearClient.issues({
-      filter: {
-        state: { id: { eq: fromStateId } },
-      },
-    });
-
-    // Filter issues
-    if (completedAfter) {
-      remove(issues.nodes, (issue) => issue.completedAt < completedAfter);
-    }
+    const issues = await getIssues();
 
     if (!issues.nodes.length) {
-      core.info("No stories found in the given workflow state.");
+      core.info("No issues found in the given workflow state.");
       return;
     }
 
-    let newLabelId;
-    // Create label
-    if (labelName) {
-      // TODO: Handle case when label already exists as this currently thows an error
-      const labelResponse = await linearClient.issueLabelCreate({
-        name: labelName,
-      });
-      newLabelId = labelResponse._issueLabel.id;
-      core.info(`Created label ${labelName}`);
-      const labelUrl = `https://linear.app/perdoo/team/ENG/label/${encodeURIComponent(
-        labelName
-      )}`;
-      core.setOutput("url", labelUrl);
+    const newLabelId = await createLabel();
+
+    await updateIssues(issues, newLabelId);
+
+    if (newLabelId) {
+      const storyList = await formatIssuesForSlack(newLabelId);
+      core.setOutput("issue-list", storyList);
     }
-
-    core.setOutput("label-created", Boolean(labelName));
-
-    // Update issues
-    each(issues.nodes, async (issue) => {
-      let updatedIssue = {
-        stateId: toStateId,
-      };
-
-      if (newLabelId) {
-        const labels = await issue.labels();
-        const labelIds = labels.nodes.map(({ id }) => id);
-        if (!labelIds.includes(newLabelId)) {
-          updatedIssue["labelIds"] = labelIds.concat([newLabelId]);
-          core.info(`Adding label ${labelName} to ${issue.title}`);
-        }
-      }
-
-      issue.update(updatedIssue);
-      core.info(
-        `Moved ${issue.title} from state ${fromStateId} to ${toStateId}.`
-      );
-
-      if (newLabelId) {
-        const storyList = await formatIssuesForSlack(newLabelId);
-        core.setOutput("story-list", storyList);
-      }
-    });
   } catch (error) {
     core.setFailed(error.message);
   }
+}
+
+async function getIssues() {
+  // TODO: Recursively fetch all pages here. Default page length is 50 which
+  // should be enough for most use cases.
+  const issues = await linearClient.issues({
+    filter: {
+      state: { id: { eq: fromStateId } },
+    },
+  });
+
+  return issues;
+}
+
+async function createLabel() {
+  if (!labelName) {
+    return null;
+  }
+
+  // TODO: Handle case when label already exists as this currently thows an error
+  const response = await linearClient.issueLabelCreate({ name: labelName });
+  core.info(`Created label ${labelName}`);
+
+  const labelUrl = `https://linear.app/perdoo/team/ENG/label/${encodeURIComponent(
+    labelName
+  )}`;
+
+  core.setOutput("url", labelUrl);
+  core.setOutput("label-created", Boolean(labelName));
+
+  return response._issueLabel.id;
+}
+
+async function updateIssues(issues, newLabelId) {
+  each(issues.nodes, async (issue) => {
+    let payload = { stateId: toStateId };
+
+    if (newLabelId) {
+      const labels = await issue.labels();
+      const labelIds = labels.nodes.map(({ id }) => id);
+      if (!labelIds.includes(newLabelId)) {
+        payload["labelIds"] = labelIds.concat([newLabelId]);
+        core.info(`Adding label "${labelName}" to "${issue.title}".`);
+      }
+    }
+
+    issue.update(payload);
+
+    core.info(
+      `Moved "${issue.title}" from state ${fromStateId} to ${toStateId}.`
+    );
+  });
 }
 
 const escapeText = (text) =>

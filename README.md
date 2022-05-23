@@ -16,13 +16,9 @@ _Required._ Move from state id.
 
 _Required._ Move to state id.
 
-### `completedAfter`
-
-_Optional._ Only picks issues completed after this Datetime
-
 ### `label`
 
-_Optional._ The name of the label to add to the issues
+_Optional._ The name of a new label to be created and added to the issues.
 
 ## Outputs
 
@@ -34,10 +30,14 @@ Was the label created.
 
 Label URL.
 
+### `issue-list`
+
+A list of moved issues, formatted for Slack.
+
 ## Example usage
 
 ```yaml
-uses: perdoo/linear-workflow-state-action@v0.1
+uses: perdoo/linear-workflow-state-action@v0.2.0
 with:
   linearApiKey: ${{ secrets.LINEAR_API_KEY }}
   fromStateId: 12345
