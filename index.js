@@ -34,8 +34,8 @@ async function run() {
     await updateIssues(issues, newLabelId);
 
     if (newLabelId) {
-      const storyList = await formatIssuesForSlack(newLabelId);
-      core.setOutput("issue-list", storyList);
+      const issueList = await formatIssuesForSlack(newLabelId);
+      core.setOutput("issue-list", issueList);
     }
   } catch (error) {
     core.setFailed(error.message);
