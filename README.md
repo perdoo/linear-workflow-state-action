@@ -4,7 +4,7 @@ Move stories from one status of a workflow to another.
 
 ## Inputs
 
-### `linearApiKey`
+### `linearToken`
 
 _Required._ Linear API key.
 
@@ -37,7 +37,7 @@ A list of moved issues, formatted for Slack.
 ## Example usage
 
 ```yaml
-uses: perdoo/linear-workflow-state-action@v0.2.0
+uses: perdoo/linear-workflow-state-action@v0.3.0
 with:
   linearApiKey: ${{ secrets.LINEAR_API_KEY }}
   fromStateId: 12345

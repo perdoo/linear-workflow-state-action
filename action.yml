@@ -4,7 +4,7 @@ branding:
   icon: arrow-right-circle
   color: blue
 inputs:
-  linearApiKey:
+  linearToken:
     description: Linear API key
     required: true
   fromStateId:
