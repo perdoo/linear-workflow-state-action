@@ -155,11 +155,16 @@ const formatProjects = (projects) =>
   projects
     .map(
       ({ name, url, progress }) =>
-        `- <${url}|${escapeText(name)}> (${formatProgress(progress)})`
+        `- <${url}|${escapeText(name)}>, ${formatProgress(progress)}`
     )
     .join("\n") || "_No projects_";
 
-const formatProgress = (progress) => (progress * 100).toFixed() + "%";
+const formatProgress = (progress) => {
+  if (progress === 1) {
+    return "Completed";
+  }
+  return `Progress: ${(progress * 100).toFixed()}%`;
+};
 
 async function run() {
   try {
