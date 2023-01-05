@@ -30,14 +30,10 @@ Was the label created.
 
 Label URL.
 
-### `issue-list`
-
-A list of moved issues, formatted for Slack.
-
 ## Example usage
 
 ```yaml
-uses: perdoo/linear-workflow-state-action@v0.3.0
+uses: perdoo/linear-workflow-state-action@v0.4.0
 with:
   linearApiKey: ${{ secrets.LINEAR_API_KEY }}
   fromStateId: 12345
