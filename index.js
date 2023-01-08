@@ -12,25 +12,33 @@ async function getIssues(linearClient, fromStateId) {
   return issues;
 }
 
-async function createLabel(linearClient, labelName) {
-  if (!labelName) {
+async function getOrCreateLabel(linearClient, label) {
+  if (!label) {
     return null;
   }
 
-  // TODO: Handle case when label already exists as this currently thows an error
-  const response = await linearClient.issueLabelCreate({ name: labelName });
-  core.info(`Created label ${labelName}.`);
+  let labelId = await linearClient
+    .issueLabels({
+      filter: { name: { eq: label } },
+    })
+    .then((res) => (res.nodes.length ? res.nodes[0].id : null));
 
-  const encodedLabelName = encodeURIComponent(labelName);
+  if (!labelId) {
+    labelId = await linearClient
+      .issueLabelCreate({ name: label })
+      .then((res) => res._issueLabel.id);
+    core.info(`Created label ${label}.`);
+  }
+
+  const encodedLabelName = encodeURIComponent(label);
   const labelUrl = `https://linear.app/perdoo/label/${encodedLabelName}`;
 
   core.setOutput("url", labelUrl);
-  core.setOutput("label-created", true);
 
-  return response._issueLabel.id;
+  return labelId;
 }
 
-async function moveIssues(toStateId, issues, labelId) {
+async function moveIssues(toStateId, issues, label, labelId) {
   for (let i = 0; i < issues.nodes.length; i++) {
     const issue = issues.nodes[i];
     let payload = { stateId: toStateId };
@@ -41,7 +49,7 @@ async function moveIssues(toStateId, issues, labelId) {
 
       if (!labelIds.includes(labelId)) {
         payload["labelIds"] = labelIds.concat([labelId]);
-        core.info(`Adding label "${labelName}" to "${issue.title}".`);
+        core.info(`Adding label "${label}" to "${issue.title}".`);
       }
     }
 
@@ -57,7 +65,7 @@ async function run() {
     const linearClient = new LinearClient({ apiKey: linearToken });
     const fromStateId = core.getInput("fromStateId");
     const toStateId = core.getInput("toStateId");
-    const labelName = core.getInput("label");
+    const label = core.getInput("label");
     core.setSecret("linearToken");
 
     const issues = await getIssues(linearClient, fromStateId);
@@ -67,9 +75,9 @@ async function run() {
       return;
     }
 
-    const newLabelId = await createLabel(linearClient, labelName);
+    const labelId = await getOrCreateLabel(linearClient, label);
 
-    await moveIssues(toStateId, issues, newLabelId);
+    await moveIssues(toStateId, issues, label, labelId);
   } catch (error) {
     core.setFailed(error.message);
   }

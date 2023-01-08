@@ -22,10 +22,6 @@ _Optional._ The name of a new label to be created and added to the issues.
 
 ## Outputs
 
-### `label-created`
-
-Was the label created.
-
 ### `url`
 
 Label URL.
