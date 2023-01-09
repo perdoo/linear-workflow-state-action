@@ -13,17 +13,12 @@ inputs:
   toStateId:
     description: Move to state id
     required: true
-  completedAfter:
-    description: Datetime when the issues were moved to the completed state
-    required: false
   label:
     description: The name of the label to add to the issues
     required: false
 outputs:
-  label-created:
-    description: Was the label created
   url:
     description: Label URL
 runs:
-  using: "node12"
+  using: "node16"
   main: "index.js"

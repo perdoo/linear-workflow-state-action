@@ -22,22 +22,14 @@ _Optional._ The name of a new label to be created and added to the issues.
 
 ## Outputs
 
-### `label-created`
-
-Was the label created.
-
 ### `url`
 
 Label URL.
 
-### `issue-list`
-
-A list of moved issues, formatted for Slack.
-
 ## Example usage
 
 ```yaml
-uses: perdoo/linear-workflow-state-action@v0.3.0
+uses: perdoo/linear-workflow-state-action@v0.4.0
 with:
   linearApiKey: ${{ secrets.LINEAR_API_KEY }}
   fromStateId: 12345
